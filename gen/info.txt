@@ -1,0 +1,3 @@
+All generated object files end up in this directory.
+Other than this text file, no files in this directory 
+should end up in the repository.

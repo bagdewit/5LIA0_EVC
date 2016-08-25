@@ -1,0 +1,405 @@
+./rpi_prog
+============================================================
+____________________________________________________________
+...FSM:INIT 
+
+opening webcam
+____________________________________________________________
+... FSM:PROCESSING
+(main cuml) load rgb image: 0.05332037
+
+WxH: 432, 240
+(main cuml) hsv converted: 0.0624766
+
+
+Num nonzero: 1446
+(main cuml) split images to hsv ranges: 0.08236948
+oval with bot y: 88, 465
+circ: 288.6821, 58.68208, 14.31792
+rect: 292, 59
+oval with bot y: 77, 1564
+circ: 190.8702, 32.12103, 22.99829
+rect: 192, 33
+---First blue found (1564)
+---no red contours found...
+---no yellow contours found...
+(main cuml) detected signs: 0.4203991
+w,h: 13, 102
+tl_x: 50
+(main cuml) full_program_timing: 0.4267828
+PROCESSIMG current redSignflag = 0 and red_sign.type = 5
+____________________________________________________________
+... FSM:CREATING 
+ANGLE of calibration turn: 0
+tlx: 50, tly: 0
++++ FLAG: current redSignflag = 0 and red_sign.type = 5
+--- case: left, right, straight
+--- subcase: added instruction: 0 = go straight to sendqueue
++++ FLAG: lastTurnFlag = 0 | lastTurnFlag_other = 5 | blueSignFlag = 1981332384
+____________________________________________________________
+...FSM:FLUSHING
+--- case: flushed!
+--- subcase: Data read: 65 56 
++++ FLAG: the ack flag is: 1
+____________________________________________________________
+...FSM:SENDING!
+
+--------------: 0DRI+135+1350000
+--- case: sent instruction number: 0 
+Data read: 65 56 
+energy: 0, 1
+0 0 0 0 1 1 1 1 
++++ FLAG SENDING: the redSignFlag currently = 0
+____________________________________________________________
+... FSM:PROCESSING
+(main cuml) load rgb image: 0.03250765
+
+WxH: 432, 240
+(main cuml) hsv converted: 0.03568373
+
+
+Num nonzero: 1619
+(main cuml) split images to hsv ranges: 0.04478523
+oval with bot y: 87, 452
+circ: 290.2015, 57.74182, 14.52431
+rect: 294, 58
+oval with bot y: 77, 1584
+circ: 191.7131, 30.71678, 23.34549
+rect: 193, 33
+---TURN RIGHT! (1584)
+---no red contours found...
+---no yellow contours found...
+(main cuml) detected signs: 0.06122671
+w,h: 11, 73
+tl_x: 50
+(main cuml) full_program_timing: 0.06753581
+PROCESSIMG current redSignflag = 0 and red_sign.type = 5
+____________________________________________________________
+... FSM:CREATING 
+ANGLE of calibration turn: 0
+tlx: 50, tly: 0
++++ FLAG: current redSignflag = 0 and red_sign.type = 5
+--- case: left, right, straight
+--- subcase: turn right by blue sign flag
+--- subcase: added instruction: 0 = go straight to sendqueue
++++ FLAG: lastTurnFlag = 1 | lastTurnFlag_other = 5 | blueSignFlag = 2
+____________________________________________________________
+...FSM:FLUSHING
+--- case: flushed!
+--- subcase: Data read: 65 48 
++++ FLAG: the ack flag is: 1
+____________________________________________________________
+...FSM:SENDING!
+
+--------------: 0DRI+135+1350000
+--- case: sent instruction number: 0 
+Data read: 65 48 
+energy: 0, 1
+0 0 0 0 1 1 1 1 
++++ FLAG SENDING: the redSignFlag currently = 0
+____________________________________________________________
+... FSM:PROCESSING
+(main cuml) load rgb image: 0.02337287
+
+WxH: 432, 240
+(main cuml) hsv converted: 0.02626813
+
+
+Num nonzero: 2494
+(main cuml) split images to hsv ranges: 0.03591691
+oval with bot y: 79, 537
+circ: 333.5795, 47.45666, 15.64504
+rect: 337, 49
+oval with bot y: 68, 1880
+circ: 227.8087, 17.42844, 25.23886
+rect: 229, 20
+---TURN RIGHT! (1880)
+---no red contours found...
+---no yellow contours found...
+(main cuml) detected signs: 0.05409953
+w,h: 71, 36
+tl_x: 46
+(main cuml) full_program_timing: 0.06159092
+PROCESSIMG current redSignflag = 0 and red_sign.type = 5
+____________________________________________________________
+... FSM:CREATING 
+--- subcase: added instruction: 0 = turn: -10 degrees to sendqueue 
+ANGLE of calibration turn: -10
+tlx: 46, tly: 21
++++ FLAG: current redSignflag = 0 and red_sign.type = 5
+--- case: turn left, straight
+--- subcase: added instruction: 1 = go straight to sendqueue
++++ FLAG: lastTurnFlag = 1 | lastTurnFlag_other = 2 | blueSignFlag = 2
+____________________________________________________________
+...FSM:FLUSHING
+--- case: flushed!
+--- subcase: Data read: 65 128 
++++ FLAG: the ack flag is: 1
+____________________________________________________________
+...FSM:SENDING!
+
+--------------: 0DRI-050+0500000
+--- case: sent instruction number: 0 
+Data read: 65 48 
+energy: 0, 1
+0 0 0 0 1 1 1 1 
+
+--------------: 1DRI+135+1350000
+--- case: sent instruction number: 1 
+Data read: 65 49 
+energy: 0, 1
+0 0 0 0 1 1 1 1 
++++ FLAG SENDING: the redSignFlag currently = 0
+____________________________________________________________
+... FSM:PROCESSING
+(main cuml) load rgb image: 0.04045445
+
+WxH: 432, 240
+(main cuml) hsv converted: 0.04348038
+
+
+Num nonzero: 241
+(main cuml) split images to hsv ranges: 0.05414484
+oval with bot y: 60, 2236
+circ: 358.8901, 6.747282, 27.717
+rect: 359, 9
+---TURN RIGHT! (2236)
+---no red contours found...
+---no yellow contours found...
+(main cuml) detected signs: 0.07216485
+tl_x: 50
+(main cuml) full_program_timing: 0.07860021
+PROCESSIMG current redSignflag = 0 and red_sign.type = 5
+____________________________________________________________
+... FSM:CREATING 
+ANGLE of calibration turn: 0
+tlx: 50, tly: 0
++++ FLAG: current redSignflag = 0 and red_sign.type = 5
+--- case: left, right, straight
+--- subcase: turn right by blue sign flag
+--- subcase: added instruction: 0 = go straight to sendqueue
++++ FLAG: lastTurnFlag = 1 | lastTurnFlag_other = 5 | blueSignFlag = 2
+____________________________________________________________
+...FSM:FLUSHING
+--- case: flushed!
+--- subcase: Data read: 65 128 
++++ FLAG: the ack flag is: 1
+____________________________________________________________
+...FSM:SENDING!
+
+--------------: 0DRI+135+1350000
+--- case: sent instruction number: 0 
+Data read: 65 48 
+energy: 0, 1
+0 0 0 0 1 1 1 1 
++++ FLAG SENDING: the redSignFlag currently = 0
+____________________________________________________________
+... FSM:PROCESSING
+(main cuml) load rgb image: 0.05803014
+
+WxH: 432, 240
+(main cuml) hsv converted: 0.06370508
+
+
+Num nonzero: 1083
+(main cuml) split images to hsv ranges: 0.08440983
+---no blue contours found...
+---no red contours found...
+---no yellow contours found...
+(main cuml) detected signs: 0.1209812
+w,h: 148.0217, 17.03116
+tl_x: 56
+(main cuml) full_program_timing: 0.1281358
+PROCESSIMG current redSignflag = 0 and red_sign.type = 5
+____________________________________________________________
+... FSM:CREATING 
+--- subcase: added instruction: 0 = turn: 3 degrees to sendqueue 
+ANGLE of calibration turn: 3
+tlx: 56, tly: 94
++++ FLAG: current redSignflag = 0 and red_sign.type = 5
+--- case: turn right, straight
+--- subcase: turn right by blue sign flag
+--- subcase: added instruction: 1 = go straight to sendqueue
++++ FLAG: lastTurnFlag = 1 | lastTurnFlag_other = 3 | blueSignFlag = 2
+____________________________________________________________
+...FSM:FLUSHING
+--- case: flushed!
+--- subcase: Data read: 65 48 
++++ FLAG: the ack flag is: 1
+____________________________________________________________
+...FSM:SENDING!
+
+--------------: 0DRI+015-0150000
+--- case: sent instruction number: 0 
+Data read: 65 48 
+energy: 0, 1
+0 0 0 0 1 1 1 1 
+
+--------------: 1DRI+135+1350000
+--- case: sent instruction number: 1 
+Data read: 65 48 
+energy: 0, 1
+0 0 0 0 1 1 1 1 
++++ FLAG SENDING: the redSignFlag currently = 0
+____________________________________________________________
+... FSM:PROCESSING
+(main cuml) load rgb image: 0.04411877
+
+WxH: 432, 240
+(main cuml) hsv converted: 0.04692267
+
+
+Num nonzero: 1348
+(main cuml) split images to hsv ranges: 0.05758233
+---no blue contours found...
+---no red contours found...
+---no yellow contours found...
+(main cuml) detected signs: 0.07294376
+w,h: 150.6837, 18.15676
+tl_x: 56
+(main cuml) full_program_timing: 0.0800765
+PROCESSIMG current redSignflag = 0 and red_sign.type = 5
+____________________________________________________________
+... FSM:CREATING 
+--- subcase: added instruction: 0 = turn: 3 degrees to sendqueue 
+ANGLE of calibration turn: 3
+tlx: 56, tly: 93
++++ FLAG: current redSignflag = 0 and red_sign.type = 5
+--- case: turn right, straight
+--- subcase: turn right by blue sign flag
+--- subcase: added instruction: 1 = go straight to sendqueue
++++ FLAG: lastTurnFlag = 1 | lastTurnFlag_other = 3 | blueSignFlag = 2
+____________________________________________________________
+...FSM:FLUSHING
+--- case: flushed!
+--- subcase: Data read: 65 128 
++++ FLAG: the ack flag is: 1
+____________________________________________________________
+...FSM:SENDING!
+
+--------------: 0DRI+015-0150000
+--- case: sent instruction number: 0 
+Data read: 65 48 
+energy: 0, 1
+0 0 0 0 1 1 1 1 
+
+--------------: 1DRI+135+1350000
+--- case: sent instruction number: 1 
+Data read: 65 49 
+energy: 0, 1
+0 0 0 0 1 1 1 1 
++++ FLAG SENDING: the redSignFlag currently = 0
+____________________________________________________________
+... FSM:PROCESSING
+(main cuml) load rgb image: 0.03946528
+
+WxH: 432, 240
+(main cuml) hsv converted: 0.04202554
+
+
+Num nonzero: 1433
+(main cuml) split images to hsv ranges: 0.0509638
+---No blue ovals found
+---no red contours found...
+---no yellow contours found...
+(main cuml) detected signs: 0.06644648
+w,h: 231.8575, 17.49818
+tl_x: 59
+(main cuml) full_program_timing: 0.07308464
+PROCESSIMG current redSignflag = 0 and red_sign.type = 5
+____________________________________________________________
+... FSM:CREATING 
+--- subcase: added instruction: 0 = turn: 5 degrees to sendqueue 
+ANGLE of calibration turn: 5
+tlx: 59, tly: 94
++++ FLAG: current redSignflag = 0 and red_sign.type = 5
+--- case: turn right, straight
+--- subcase: turn right by blue sign flag
+--- subcase: added instruction: 1 = go straight to sendqueue
++++ FLAG: lastTurnFlag = 1 | lastTurnFlag_other = 3 | blueSignFlag = 2
+____________________________________________________________
+...FSM:FLUSHING
+--- case: flushed!
+--- subcase: Data read: 65 128 
++++ FLAG: the ack flag is: 1
+____________________________________________________________
+...FSM:SENDING!
+
+--------------: 0DRI+025-0250000
+--- case: sent instruction number: 0 
+Data read: 65 48 
+energy: 0, 1
+0 0 0 0 1 1 1 1 
+
+--------------: 1DRI+135+1350000
+--- subcase: Failed to write to the i2c bus in sending.
+Data read: 255 255 
+energy: 255, 255
+255 255 255 255 255 255 255 255 
++++ FLAG SENDING: the redSignFlag currently = 0
+____________________________________________________________
+... FSM:PROCESSING
+(main cuml) load rgb image: 0.04508762
+
+WxH: 432, 240
+(main cuml) hsv converted: 0.04777834
+
+
+Num nonzero: 1300
+(main cuml) split images to hsv ranges: 0.05747368
+---No blue ovals found
+---no red contours found...
+---no yellow contours found...
+(main cuml) detected signs: 0.07360672
+w,h: 13, 230
+tl_x: 59
+(main cuml) full_program_timing: 0.08056322
+PROCESSIMG current redSignflag = 0 and red_sign.type = 5
+____________________________________________________________
+... FSM:CREATING 
+--- subcase: added instruction: 0 = turn: 5 degrees to sendqueue 
+ANGLE of calibration turn: 5
+tlx: 59, tly: 96
++++ FLAG: current redSignflag = 0 and red_sign.type = 5
+--- case: turn right, straight
+--- subcase: turn right by blue sign flag
+--- subcase: added instruction: 1 = go straight to sendqueue
++++ FLAG: lastTurnFlag = 1 | lastTurnFlag_other = 3 | blueSignFlag = 2
+____________________________________________________________
+...FSM:FLUSHING
+--- subcase: Failed to write to the i2c bus, -1. Can't flush.
+--- subcase: Failed to read from the i2c bus, flush was not found.
++++ FLAG: the ack flag is: 0
+____________________________________________________________
+...FSM:ERRORPARTY
+---case: the amount of flush ack errors = 1
+---case: the amount of send ack errors = 0
+____________________________________________________________
+...FSM:FLUSHING
+--- subcase: Failed to write to the i2c bus, -1. Can't flush.
+--- subcase: Failed to read from the i2c bus, flush was not found.
++++ FLAG: the ack flag is: 0
+____________________________________________________________
+...FSM:ERRORPARTY
+---case: the amount of flush ack errors = 2
+---case: the amount of send ack errors = 0
+____________________________________________________________
+...FSM:FLUSHING
+--- subcase: Failed to write to the i2c bus, -1. Can't flush.
+--- subcase: Failed to read from the i2c bus, flush was not found.
++++ FLAG: the ack flag is: 0
+____________________________________________________________
+...FSM:ERRORPARTY
+---case: the amount of flush ack errors = 3
+---case: the amount of send ack errors = 0
+____________________________________________________________
+...FSM:FLUSHING
+--- subcase: Failed to write to the i2c bus, -1. Can't flush.
+--- subcase: Failed to read from the i2c bus, flush was not found.
++++ FLAG: the ack flag is: 0
+____________________________________________________________
+...FSM:ERRORPARTY
+---case: the amount of flush ack errors = 4
+---case: the amount of send ack errors = 0
+...FSM:BROKEN #RIPMUCH
+Makefile:24: recipe for target 'run' failed

@@ -1,0 +1,5 @@
+#debugging purposes only
+
+CPPFLAGS = `pkg-config --cflags opencv` -fopenmp -O3
+LDLIBS = `pkg-config --libs opencv` -L/usr/lib64 -lstdc++
+

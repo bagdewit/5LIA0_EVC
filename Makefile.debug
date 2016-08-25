@@ -1,0 +1,26 @@
+VPATH = ./
+OBJDIR = gen
+SRCDIR = src
+EXECUTABLE  = rpi_prog
+_SOURCES = main.cpp state_funcs.cpp ocv_routines.cpp
+SOURCES = $(_SOURCES:%.cpp=$(SRCDIR)/%.cpp)
+OBJECTFILES = $(_SOURCES:%.cpp=$(OBJDIR)/%.o)
+
+DEBUG = -gp 
+CC = g++
+CFLAGS = -c -Wall `pkg-config --cflags opencv`
+LIBS = `pkg-config --libs opencv` -L/usr/lib64 -lstdc++
+
+$(EXECUTABLE): $(OBJECTFILES)
+	$(CC) -o $(EXECUTABLE) $(OBJECTFILES) $(LIBS)
+
+%.o: ../$(SRCDIR)/%.cpp
+	$(CC) -w -c  $(DEBUG) $< -o $@
+
+run: $(EXECUTABLE)
+	./$(EXECUTABLE)
+
+.PHONY: clean
+
+clean:
+	rm $(OBJECTFILES) $(EXECUTABLE)
