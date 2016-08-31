@@ -1,3 +1,11 @@
+/*
+* @file: types.h
+* @author: B. de Wit <b.a.g.d.wit@student.tue.nl> & EVC Group 1 2016 (L. van Harten)
+* @course: Embedded Visual Control 5LIA0
+*
+* This file contains all structures used for the FSM as well as the vision part. 
+*/
+
 #ifndef TYPES_H
 #define TYPES_H
 

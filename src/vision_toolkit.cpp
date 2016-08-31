@@ -1,9 +1,23 @@
+/*
+* @file: vision_toolkit.cpp
+* @author: B. de Wit <b.a.g.d.wit@student.tue.nl> & EVC Group 1 2016 (L. van Harten)
+* @course: Embedded Visual Control 5LIA0
+*
+* This file contains the vision code for recognition of road situations,
+* signs and lines.
+*/
+
+
 #include "vision_toolkit.h"
 #include <ctime> 
 using namespace cv;
 using namespace std;
 
-//blob detection code for blue signs
+
+///////////////////////////////////////
+/*blob detection code for blue signs//
+* currently not being used         */
+////////////////////////////////////
 Sign VisionToolkit::blob_detect_blue_sign(Mat &blue_hue_image) {
     Sign result;
     // Get connected components and stats
@@ -66,6 +80,10 @@ Sign VisionToolkit::blob_detect_blue_sign(Mat &blue_hue_image) {
     return result;
 }
 
+/////////////////////////////
+/* Blue sign detection    //
+* Edge detection Version */
+//////////////////////////
 Sign VisionToolkit::edge_detect_blue_sign(Mat &blue_hue_image) {
     Sign result;
     result.type = none;
@@ -230,7 +248,9 @@ Sign VisionToolkit::edge_detect_blue_sign(Mat &blue_hue_image) {
     return result;
 }
 
-
+/////////////////////////
+/* Red sign detection */
+///////////////////////
 Sign VisionToolkit::edge_detect_red_sign(Mat &red_hue_image) {
     Sign result;
     result.type = stopsign;
@@ -310,6 +330,9 @@ Sign VisionToolkit::edge_detect_red_sign(Mat &red_hue_image) {
     return result;
 }
 
+////////////////////////////
+/* Yellow sign detection */
+//////////////////////////
 Sign VisionToolkit::edge_detect_yellow_sign(Mat &yellow_hue_image) {
     Sign result;
     result.type = uturn;
@@ -393,6 +416,9 @@ Sign VisionToolkit::edge_detect_yellow_sign(Mat &yellow_hue_image) {
     return result;
 }
 
+//////////////////////////////////////////
+/*Line detection and situation choosing*/
+////////////////////////////////////////
 Lane VisionToolkit::lane_detect(Mat &dark_image) {
     double lane_tic = omp_get_wtime();
     double lane_toc;
@@ -402,20 +428,28 @@ Lane VisionToolkit::lane_detect(Mat &dark_image) {
     result.tl_x = 50;
     result.type = lrf;
 
-    dilate(dark_image, dark_image, getStructuringElement(MORPH_RECT, Size(3,3)), Point(-1,-1),2); //original size 2,2
+	//image processing dilation and eroding 
+    dilate(dark_image, dark_image, getStructuringElement(MORPH_RECT, Size(3,3)), Point(-1,-1),2); //filter out the noise  //original size 2,2
+	#ifdef DILEROSHOW
 	imshow("after dilate 1", dark_image);
-    erode(dark_image, dark_image, getStructuringElement(MORPH_RECT, Size(2,2)), Point(-1,-1),3);
+	#endif
+    erode(dark_image, dark_image, getStructuringElement(MORPH_RECT, Size(2,2)), Point(-1,-1),3); //enlarge the remaining pictures
+	#ifdef DILEROSHOW
 	imshow("after erode 1", dark_image);
-    dilate(dark_image, dark_image, getStructuringElement(MORPH_RECT, Size(3,3)), Point(-1,-1),1); //original size 2,2
+	#endif
+    dilate(dark_image, dark_image, getStructuringElement(MORPH_RECT, Size(3,3)), Point(-1,-1),1); //try a second filter on the noise //original size 2,2
+	#ifdef DILEROSHOW
 	imshow("after dilate 2", dark_image);
+	#endif
 
+	//timing output for debug purposes
     lane_tic = lane_tic + 0; //silence lint warnings whenever printing is disabled
     lane_toc = omp_get_wtime();
     //cout << "lane 1: " << setprecision(7) << lane_toc-lane_tic << endl;
 
     Mat dark_processed = dark_image.clone();
     Mat dark_col;
-    cvtColor(dark_processed, dark_col, CV_GRAY2BGR);
+    cvtColor(dark_processed, dark_col, CV_GRAY2BGR); //gray to color conversion as some functions want a bgr formatted image
 
     lane_toc = omp_get_wtime();
     //cout << "lane 2: " << setprecision(7) << lane_toc-lane_tic << endl;
@@ -443,11 +477,11 @@ Lane VisionToolkit::lane_detect(Mat &dark_image) {
         return result;
     }
 
-    
+    //find the contours in the image
     RotatedRect temp_rect, big_rect; 
     for(int idx = 0; idx >= 0; idx = hierarchy[idx][0] )
     {
-        rotRect[idx] = minAreaRect(contours[idx]);
+        rotRect[idx] = minAreaRect(contours[idx]); //draw the minimal possible rectangle
         approxPolyDP( Mat(contours[idx]), contours_poly[idx], 3, true );
         boundRect[idx] = boundingRect( Mat(contours_poly[idx]) );
         int weight = rotRect[idx].size.height+rotRect[idx].size.width;
@@ -490,10 +524,12 @@ Lane VisionToolkit::lane_detect(Mat &dark_image) {
     lane_toc = omp_get_wtime();
     //cout << "lane 6: " << setprecision(7) << lane_toc-lane_tic << endl;
  
+	
     vector<vector<Point> > lhull(1);
     vector<vector<Point> > rhull(1);
     Moments moml, momr;
     bool l_in_way = false, r_in_way = false, l_in_long_way = false, r_in_long_way = false;
+	//find most left contours and draw these
     if(lId!=-1) {
         convexHull( Mat(contours[lId]), lhull[0], false );
         //moml = moments(lhull[0]);
@@ -521,6 +557,7 @@ Lane VisionToolkit::lane_detect(Mat &dark_image) {
         //line( _g_final_destination, Point(215,Y_BOTRECT + BOT_HEIGHT-45),Point(144,Y_BOTRECT + BOT_HEIGHT-35), Scalar(0,255,0), 3, CV_AA);
         //line( _g_final_destination, Point(215,Y_BOTRECT + BOT_HEIGHT-45),Point(288,Y_BOTRECT + BOT_HEIGHT-35), Scalar(0,255,0), 3, CV_AA);
     }
+	//find most right contours and draw these
     if(rId!=-1) {
         //convexHull( Mat(contours[rId]), rhull[0], false );
         //momr = moments(rhull[0]);
@@ -552,11 +589,12 @@ Lane VisionToolkit::lane_detect(Mat &dark_image) {
     lane_toc = omp_get_wtime();
     //cout << "lane 7: " << setprecision(7) << lane_toc-lane_tic << endl;
 
-    if(lId == rId) {
-        if(lId == -1) {
+	//decision making on road type
+    if(lId == rId) { //left and right part are equal
+        if(lId == -1) { //left and right part don't have a boundary
             result.type = lrf;
             line( _g_final_destination, Point(X_PIX/2, 1),Point(X_PIX/2, X_PIX-1), Scalar(200,200,255), 3, CV_AA);
-        } else if(l_in_way) {
+        } else if(l_in_way) { //left and right part both blocked
             result.type = dead;
         } else {
             int lane_x_coord = X_PIX-1 - momr.m10/momr.m00;
@@ -565,7 +603,7 @@ Lane VisionToolkit::lane_detect(Mat &dark_image) {
             result.tl_y = ((BOT_HEIGHT_ORIG-lane_y_coord)*100)/BOT_HEIGHT_ORIG;
             line( _g_final_destination, Point(lane_x_coord, 1),Point(lane_x_coord, X_PIX-1), Scalar(200,200,255), 3, CV_AA);
             line( _g_final_destination, Point(1, lane_y_coord+Y_BOTRECT),Point(X_PIX-1, lane_y_coord+Y_BOTRECT), Scalar(100,100,155), 2, CV_AA);
-            if (lane_x_coord < 170) {
+            if (lane_x_coord < floor(0.4*X_PIX)) { //original set to 170
                 if (r_in_long_way) {
                     result.type = l;
                     result.tl_x = lane_x_normalized + 5;
@@ -573,7 +611,7 @@ Lane VisionToolkit::lane_detect(Mat &dark_image) {
                     result.type = lf;
                     result.tl_x = lane_x_normalized;
                 }
-            } else if (lane_x_coord > 250) {
+            } else if (lane_x_coord > floor(0.6*X_PIX)) { //original set to 250
                 if (r_in_long_way) {
                     result.type = r;
                     result.tl_x = lane_x_normalized - 5;
@@ -646,7 +684,7 @@ Lane VisionToolkit::lane_detect(Mat &dark_image) {
         cout << "lx_norm: " << lane_x_normalized << endl;
         line( _g_final_destination, Point(lane_x_normalized*4.32, 1),Point(lane_x_normalized*4.32, X_PIX-1), Scalar(200,200,255), 3, CV_AA);
         line( _g_final_destination, Point(1, lane_y_coord+Y_BOTRECT),Point(X_PIX-1, lane_y_coord+Y_BOTRECT), Scalar(100,100,155), 2, CV_AA);
-        if (lane_x_coord < 170) {
+        if (lane_x_coord < floor(0.4*X_PIX)) { //original set to 170
             if (r_in_long_way || l_in_long_way) {
                 result.type = l;
                 result.tl_x = lane_x_normalized + 5;
@@ -654,7 +692,7 @@ Lane VisionToolkit::lane_detect(Mat &dark_image) {
                 result.type = lf;
             result.tl_x = lane_x_normalized;
             }
-        } else if (lane_x_coord > 250) {
+        } else if (lane_x_coord > floor(0.6*X_PIX)) { //original set to 250
             if (r_in_long_way || l_in_long_way) {
                 result.type = r;
                 result.tl_x = lane_x_normalized - 5;
@@ -676,6 +714,7 @@ Lane VisionToolkit::lane_detect(Mat &dark_image) {
             result.type = dead;
         }
     }
+	//text output in image
     switch(result.type) {
         case l:
             putText(_g_final_destination, "L", Point(30, 30), FONT_HERSHEY_SIMPLEX, 1, Scalar(255,255,255), 6);
@@ -730,6 +769,9 @@ Lane VisionToolkit::lane_detect(Mat &dark_image) {
     return result;
 }
 
+////////////////////////
+/* Init setup values */
+//////////////////////
 void VisionToolkit::initSignMems() {
     frames_since_no_yellow=0;
     frames_since_no_red=0;
@@ -738,6 +780,11 @@ void VisionToolkit::initSignMems() {
     frames_since_no_forward=0;
 }
 
+////////////////////////////////////////////////////////////
+/*Function to use auto grey calibration                ////
+* Based on sample pixels defining darkest and lightest ///
+* Not being used in current version any more*/         //
+////////////////////////////////////////////////////////
 void VisionToolkit::calibGrey() {
     Mat hsv_image;
     cvtColor(src_col, hsv_image, cv::COLOR_BGR2HSV);
@@ -756,7 +803,9 @@ void VisionToolkit::calibGrey() {
     }
 }
 
-
+/////////////////////////////////////////////////////////
+/*Function to work with input frames instead of Camera*/
+///////////////////////////////////////////////////////
 VisionToolkit::VisionToolkit(char *file) {
     initSignMems();
     if(!_cap2.open(file))
@@ -768,6 +817,9 @@ VisionToolkit::VisionToolkit(char *file) {
     save_frame = false;
 }
 
+/////////////////////////////////////////////////////////////////////
+/* Function that opens the Raspberry Pi Cam including pre-settings*/
+///////////////////////////////////////////////////////////////////
 VisionToolkit::VisionToolkit() {
     initSignMems();
     cout << "opening webcam";
@@ -794,6 +846,9 @@ VisionToolkit::VisionToolkit() {
     save_frame = true;
 }
 
+//////////////////////////////////
+/* Process Frame main function */
+////////////////////////////////
 int VisionToolkit::process_frame()
 {
     double main_tic = omp_get_wtime();
@@ -814,18 +869,18 @@ int VisionToolkit::process_frame()
 	
 	#ifdef SAVEFRAMES // saving captures created during run, can be used for debug purposes
 	ostringstream ostring_date;
-	ostring_date << "caps" <<"_"<< ltm->tm_mday<< "_"  << ltm->tm_mon +1 << "_" << ltm->tm_hour;
+	ostring_date << "caps" <<"_"<< ltm->tm_mday<< "_"  << ltm->tm_mon +1 << "_" << ltm->tm_hour; //create file prefix
 	string string_date = ostring_date.str();
 	cout << string_date << endl;
 	const char* string_date_const = string_date.c_str();
 	struct stat st = {0};
-
+	//when folder doesn't exist, create one
 	if (stat(string_date_const, &st) == -1) { 
 		mkdir(string_date_const, 0700);
 	}
-	filename << string_date_const <<"/" << std::time(0) << "_" << omp_get_wtime() << "_raw.jpg";
-	cout << string_date_const << "/" << std::time(0) << "_" << omp_get_wtime() << "_raw.jpg"<<endl;
-    if(save_frame) imwrite(filename.str(), src_col);
+	filename << string_date_const <<"/" << std::time(0) << "_" << omp_get_wtime() << "_raw.jpg"; // create filename
+	cout << string_date_const << "/" << std::time(0) << "_" << omp_get_wtime() << "_raw.jpg"<<endl; //debug window feedback for filename
+    if(save_frame) imwrite(filename.str(), src_col); //save image under filename
 	#endif //SAVEFRAMES
 		
 	//timing feedback on process
@@ -862,12 +917,23 @@ int VisionToolkit::process_frame()
     hsv_image(botcroprect).copyTo(botcrop);
 
 	// set hsv boundaries for the different colours (signs)//
+	//uses the static values
+	#ifndef CUSTOMCOLORVAL
 	inRange(topcrop, cv::Scalar(0, 30, 30), cv::Scalar(10, 255, 255), lower_red_hue_range);
     inRange(topcrop, cv::Scalar(160, 30, 30), cv::Scalar(255, 255, 255), upper_red_hue_range);
     addWeighted(lower_red_hue_range, 1.0, upper_red_hue_range, 1.0, 0.0, red_hue_image);
-    //inRange(topcrop, cv::Scalar(BLUE_H_LO, BLUE_S_LO, BLUE_V_LO), cv::Scalar(BLUE_H_HI, BLUE_S_HI, BLUE_V_HI), blue_hue_image);
-	inRange(topcrop, cv::Scalar(100, 40, 80), cv::Scalar(161, 255, 255), blue_hue_image);
+	inRange(topcrop, cv::Scalar(100, 80, 35), cv::Scalar(161, 255, 255), blue_hue_image);
     inRange(topcrop, cv::Scalar(15, 200, 140), cv::Scalar(40, 255, 255), yellow_hue_image);
+	#endif //CUSTOMCOLORVAL
+	
+	//uses the values set in the header file
+	#ifdef CUSTOMCOLORVAL
+	inRange(topcrop, cv::Scalar(RED1_H_LO, RED1_S_LO, RED1_V_LO), cv::Scalar(RED1_H_HI, RED1_S_HI, RED1_V_HI), lower_red_hue_range);
+    inRange(topcrop, cv::Scalar(RED2_H_LO, RED2_S_LO, RED2_V_LO), cv::Scalar(RED2_H_HI, RED2_S_HI, RED2_V_HI), upper_red_hue_range);
+    addWeighted(lower_red_hue_range, 1.0, upper_red_hue_range, 1.0, 0.0, red_hue_image);
+	inRange(topcrop, cv::Scalar(BLUE_H_LO, BLUE_S_LO, BLUE_V_LO), cv::Scalar(BLUE_H_HI, BLUE_S_HI, BLUE_V_HI), blue_hue_image);
+    inRange(topcrop, cv::Scalar(YEL_H_LO, YEL_S_LO, YEL_V_LO), cv::Scalar(YEL_H_HI, YEL_S_HI, YEL_V_HI), yellow_hue_image);
+	#endif //CUSTOMCOLORVAL
 	
 	
 	#ifdef CLAHEPROC //use CLAHE to improve the contrast of the image
@@ -875,18 +941,19 @@ int VisionToolkit::process_frame()
 	Size claheTileSize(CLAHETILEW, CLAHETILEH);
 	cvtColor( botcrop, clahe_test, COLOR_HSV2BGR);
     cvtColor( clahe_test, clahe_test, COLOR_BGR2GRAY );
-	imshow("result before clahe", clahe_test);
+		#ifdef CLAHESHOW
+		imshow("result before clahe", clahe_test);
+		#endif //CLAHESHOW
 	Ptr<CLAHE> clahe = createCLAHE();
 	clahe->setClipLimit(CLAHEGRADE);
 	clahe->setTilesGridSize(claheTileSize);
 	clahe->apply(clahe_test, clahe_test);
-	imshow("result with clahe", clahe_test);
+		#ifdef CLAHESHOW
+		imshow("result with clahe", clahe_test);
+		#endif //CLAHESHOW
 	cvtColor( clahe_test, clahe_test, CV_GRAY2BGR);
-	//imshow("results clahe after gray->bgr", clahe_test);
     cvtColor(clahe_test, clahe_test, cv::COLOR_BGR2HSV);
-	//imshow("results clahe after bgr->hsv", clahe_test);
 	inRange(clahe_test, cv::Scalar(0,0,0), cv::Scalar(255, 180, maxgreyval), clahe_test);
-	
 		#ifdef CLAHEDARKSHOW
 		imshow("dark_image with CLAHE", clahe_test);
 		#endif //CLAHEDARKSHOW
@@ -895,7 +962,7 @@ int VisionToolkit::process_frame()
 	#endif //CLAHEPROC
 	
 	#ifndef CLAHEPROC // version without CLAHE corrections
-	//set hsv bondaries for the line detection, dependent on max value of grey (maxgreyval)
+	//set hsv boundaries for the line detection, dependent on max value of grey (maxgreyval)
     inRange(botcrop, cv::Scalar(0, 0, 0), cv::Scalar(255, 180, maxgreyval), dark_image);
 		#ifdef CLAHEDARKSHOW
 		imshow("dark_image without CLAHE", dark_image);
@@ -944,7 +1011,7 @@ int VisionToolkit::process_frame()
     imshow("Final destination", _g_final_destination); 
 	#endif //FINALSHOW
 	
-	#ifdef SAVEFRAMES
+	#ifdef SAVEFRAMES //saves the image which is processed
 	ostringstream filename2;
 	filename2 <<  string_date_const <<"/" << std::time(0) << "_" << omp_get_wtime() << "_info.jpg";
     if(save_frame) imwrite(filename2.str(), _g_final_destination);

@@ -1,17 +1,23 @@
-// Main file for the FSM
-// This file contains couts with a pattern in characters
-// When running on linux grep the following:
-// ... = State information
-// --- = FSM choice information
-// +++ = Flag information
+/*
+* @file: state_funcs.cpp
+* @author: B. de Wit <b.a.g.d.wit@student.tue.nl> & EVC Group 1 2016 (L. van Harten)
+* @course: Embedded Visual Control 5LIA0
+*
+* This is the FSM main file. All choices are made here. The Arduino commands
+* are sent in this file. This file also contains debug output to the 
+* console.
+*/
+
 
 #include "state_funcs.h"
-
-
 using namespace std;
-
 VisionToolkit *VisionInfo;
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/*add straight to sendqueue function																							//
+  this function creates a string which will be added to a queue to send over to the Arduino                    //
+  format used = [id][instr][left sign][steps left][right sign][steps right][time], example 0DRI+123-456789    */
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void straightFunc(int distance, state_data *data)
 {
     int servoDistance = (distance * REV_TO_DIST);
@@ -32,6 +38,11 @@ void straightFunc(int distance, state_data *data)
 
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/*add turn to sendqueue function																							//
+  this function creates a string which will be added to a queue to send over to the Arduino                    //
+  format used = [id][instr][left sign][steps left][right sign][steps right][time], example 0DRI+123-456789    */
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void angleFunc(int radius, state_data *data)
 {
     int servoDistance = (radius * REV_TO_ANGLE);
@@ -59,6 +70,11 @@ void angleFunc(int radius, state_data *data)
     data->inst_cnt++;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/*Ultrasound sensor check 																						//
+//Function which is not being used right now, can be used to check the difference between a shadow and a line  //
+//If you want to use this function you should get a HC-SR04 sensor module and connect this to the Arduino     */
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 bool ultraCheck(int distance, state_data *data){
 //    cout << "ULTRACHECK\n";
 //
@@ -106,16 +122,23 @@ bool ultraCheck(int distance, state_data *data){
 //    {
 //        block = true;
 //    }
-	block = true;
     return block;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//Function which isn't used currently. This is used to translate pixels in the y direction to a distance.          ///
+//To get this function print out a grid, place this under your camera and compare pixels to grid distance.        ///
+//This should end up having a curve which can be translated to a polynomial and then used to calculate distance. ///
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 int tl_y_to_dist(int tl_y)
 {
     int dist = tl_y*tl_y* 0.0131 + tl_y * -0.2081 + 19.5494;
     return dist;
 }
 
+///////////////////////////
+/* Initialization State */
+/////////////////////////
 global_state init(state_data *data) {
 
 	
@@ -137,23 +160,20 @@ global_state init(state_data *data) {
     if ((data->file_i2c = open(filename, O_RDWR)) < 0)
     {
         //ERROR HANDLING: you can check errno to see what went wrong
-        printf("--- subcase: Failed to open the i2c bus at startup");
+        printf("ERROR: Failed to open the i2c bus at startup");
         exit(10);
     }
     data->addr = 0x08;          //<<<<<The I2C address of the slave
     if (ioctl(data->file_i2c, I2C_SLAVE, data->addr) < 0)
     {
-        printf("--- subcase: Failed to acquire bus access and/or talk to slave at startup.\n");
+        printf("ERROR: Failed to acquire bus access and/or talk to slave at startup.\n");
         //ERROR HANDLING; you can check errno to see what went wrong
         exit(11);
     }
 
-    //setup solar panel
-    //set angle of magnetometer to bias
-    //if something is wrong, move to broken state
-    //else continue to processing_func
-    data->blue_sign.type = lturn;
-	data->blueSignFlag = lturn;
+	//set some values to zero as init
+    data->blue_sign.type = none;
+	data->blueSignFlag = none;
     data->redSignFlag = false;
     data->redSignFlagEx = false;
 	data->whereToGo = 0;
@@ -164,6 +184,9 @@ global_state init(state_data *data) {
     return PROCESSINGIMG;
 }
 
+/////////////////////////////
+/* Processing Image State */
+///////////////////////////
 global_state processingImage(state_data *data) {
 	#ifdef WAITKEY
 		cout << "============================================================" << endl;
@@ -204,6 +227,9 @@ global_state processingImage(state_data *data) {
     return CREATEQUEUE;
 }
 
+///////////////////////
+/*Create Queue State*/
+/////////////////////
 global_state createQueue(state_data *data){
     cout << "____________________________________________________________" << endl;
     cout<<"... FSM:CREATING \n";
@@ -212,9 +238,9 @@ global_state createQueue(state_data *data){
 	cout << "0 = lturn, 1 = fturn, 2 = rturn, 3 = stopsign, 4 = uturn, 5 = none" << endl;
 	cout << "the blue sign flag currently is set at " << data->blueSignFlag << endl;
 	cout << "the red  sign flag currently is set at " << data->redSignFlag<< endl;
-	cout<< "the blue sign registered by the vision part " << data->blue_sign.type << endl;
-	cout<< "the yellow sign registered by the vision part " << data->yellow_sign.type << endl;
-	cout<< "the red  sign registered by the vision part "<< data->red_sign.type  <<endl <<endl;
+	cout << "the blue sign registered by the vision part " << data->blue_sign.type << endl;
+	cout << "the yellow sign registered by the vision part " << data->yellow_sign.type << endl;
+	cout << "the red  sign registered by the vision part "<< data->red_sign.type  <<endl <<endl;
 	cout << "last turn flag options: " << "0 = l, 1 = r, 2 = lf, 3 = rf, 4 = f, 5 = lrf, 6 = lr, 7 = dead, 8 = in_corner, 9 = none" << endl;
 	cout << "lastTurnFlag is set at " << data->lastTurnFlag << endl;
 	cout << "lastTurnFlag_other is set at: " << data->lastTurnFlag_other << endl << endl;
@@ -234,42 +260,39 @@ global_state createQueue(state_data *data){
 		}
 	}
 	
-    //in the documentation the different types of track can be found.
     //there are 9 possible versions of the road ahead.
     //using a camera and a switch case, the queue will be filled
     //decisions will be made depending on the traffic sign
 
-    //step 1: empty the old queue buffer
-    //data->all_packets = {0};
-
-    //step 2: add alignment angle to the queue buffer
+    //step 1: add alignment angle to the queue buffer
     int angle;
     int temp;
-    //step 2: add alignment angle to the queue buffer
     if(data->cur_lane.tl_x > 50) //means that the middle is on the right of the car
-    {
+    { 
         //positive angle
         temp = data->cur_lane.tl_x - 50;
         angle = (int) floor(atan2(temp,data->cur_lane.tl_y) * 180 / new_PI);
     }
     else //means that the middle is on the left of the car
     {
+		//negative engle
         temp = -(data->cur_lane.tl_x - 50);
         angle = (int) -(floor(atan2(temp,data->cur_lane.tl_y) * 180 / new_PI));
     }
-    //angle *= 0.6; //less agressive angle correction
-    angle *= 0.8; //less agressive angle correction
+    angle *= 0.6; //less agressive angle correction
+    //angle *= 0.8; //little less agressive angle correction
     if(angle!=0) angleFunc(angle, data);
     data->cur_lane.approachAngle = angle;
     cout << "ANGLE of calibration turn: " << angle << endl;
 
 
-    //step 3: calculate amount of straight parts (5cm each)
+    //step 2: calculate amount of straight parts
+	//can be used when working with longer queues
     int straightDistance = tl_y_to_dist(data->cur_lane.tl_y);
     cout << "tlx: " << data->cur_lane.tl_x << ", tly: " << data->cur_lane.tl_y << endl;
 
 
-    //step 4: check if either the stop or U-turn sign should be executed
+    //step 3: check if either the stop or U-turn sign should be executed
     cout << "+++ FLAG: current redSignflag = " << data->redSignFlag << " and red_sign.type = " << data->red_sign.type << "\n";
     if(data->red_sign.type == none && data->redSignFlag == true){ //the car should wait for about 10 sec
         data->redSignFlagEx = true;
@@ -286,20 +309,18 @@ global_state createQueue(state_data *data){
         return FLUSH;
     }
 
-    //step 5: no flags raised, continue with calculating the right steps to be performed
+    //step 4: no flags raised, continue with calculating the right steps to be performed
     switch(data->cur_lane.type){
         case r: //turn right
             cout<<"### case:r "<<endl;
             data->lastTurnFlag = r; // register that there is an option to go right
             straightFunc(STRAIGHT_CM, data);
-
             break;
 
         case l: //turn left
             cout<<"### case:l"<<endl;
             data->lastTurnFlag = l; // register that there is an option to go left
             straightFunc(STRAIGHT_CM, data);
-
             break;
 
         case lf: //turn left, straight
@@ -506,7 +527,7 @@ global_state createQueue(state_data *data){
 						}
                     }
                     else{
-						//will never trigger
+						//will never trigger since there is no ultrasound module attached
                         cout<<"--- subcase: nope, was a shadow lulz..." << endl;
                         straightFunc(STRAIGHT_CM, data);
 
@@ -545,6 +566,9 @@ global_state createQueue(state_data *data){
     return FLUSH;
 }
 
+////////////////////////
+/* Flush Queue State */
+//////////////////////
 global_state flushQueue(state_data *data){
     //send flush command to ardiuno to make sure that the next queuelist has priority_queue
 
@@ -565,12 +589,13 @@ global_state flushQueue(state_data *data){
     flushCOM[1]= 'F';
     flushCOM[2]= 'L';
     flushCOM[3]= 'U';
+	
     int wat_dan_wel = write(data->file_i2c, flushCOM, length);
     if (wat_dan_wel != length){      //write() returns the number of bytes actually written, if it doesn't match then an error occurred (e.g. no response from the device)
         /* ERROR HANDLING: i2c transaction failed */
-        printf("--- subcase: Failed to write to the i2c bus, %d. Can't flush.\n", wat_dan_wel);
+        printf("ERROR: Failed to write to the i2c bus, %d. Can't flush.\n", wat_dan_wel);
     } else {
-        cout<<"--- case: flushed!\n";
+        cout<<"### status: flushed!\n";
     }
     usleep(10000);
 
@@ -578,11 +603,11 @@ global_state flushQueue(state_data *data){
     if (read(data->file_i2c, buffer, length) != length)       //read() returns the number of bytes actually read, if it doesn't match then an error occurred (e.g. no response from the device)
     {
         //ERROR HANDLING: i2c transaction failed
-        printf("--- subcase: Failed to read from the i2c bus, flush was not found.\n");
+        printf("ERROR: Failed to read from the i2c bus, flush was not found.\n");
     }
     else
     {
-        printf("--- subcase: Data read: ");
+        printf("###: Data read: ");
         for(int i=0; i<length; i++)
             printf("%d ", buffer[i]);
         printf("\n");
@@ -604,6 +629,9 @@ global_state flushQueue(state_data *data){
     }
 }
 
+///////////////////////
+/* Send Queue State */
+//////////////////////
 global_state sendQueue(state_data *data) {
     cout << "____________________________________________________________" << endl;
     cout<<"...FSM:SENDING!" << endl;
@@ -691,9 +719,12 @@ global_state sendQueue(state_data *data) {
     }
 }
 
+//////////////////////
+/* ACK ERROR State */
+////////////////////
 global_state ackError(state_data *data){
     cout << "____________________________________________________________" << endl;
-    cout << "...FSM:ERRORPARTY"<<endl;
+    cout << "ERRORPARTY"<<endl;
     cout << "---case: the amount of flush ack errors = " << data->noAck_count << "\n";
     cout << "---case: the amount of send ack errors = " << data->noAck2_count << "\n";
     // check if the acks have been missing for more than 3 times
@@ -708,8 +739,11 @@ global_state ackError(state_data *data){
     }
 }
 
+///////////////////
+/* BROKEN State */
+/////////////////
 global_state broken(state_data *data){
-    cout << "...FSM:BROKEN #RIPMUCH" << endl;
+    cout << "BROKEN #RIPMUCH" << endl;
     //turn on red light to show shit is going on
     // wait 10 seconds
     // move to init state
